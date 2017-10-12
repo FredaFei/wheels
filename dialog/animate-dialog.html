@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>dialog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .clearfix::after {
+            content: '';
+            display: inline-block;
+            clear: both;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, .18);
+            z-index: 10;
+            transition: all .5s ease-out 0s;
+            display: none;
+            opacity: 0;
+        }
+
+        .dialog{
+            width: 400px;
+            margin: 30px auto;
+            border-radius: 6px;
+            background: #fff;
+            transform: translate(0, -40%);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+            transition: all .5s ease-out 0s;
+        }
+
+        .dialog .header {
+            line-height: 30px;
+            font-size: 16px;
+            padding: 2px 4px;
+            color: #222;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .dialog .header .title {
+            float: left;
+        }
+
+        .dialog .header .close {
+            float: right;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .dialog .content {
+            margin: 0 12px;
+            padding: 20px 0;
+        }
+
+        .dialog .footer {
+            line-height: 30px;
+        }
+
+        .fadein {
+            opacity: 1;
+        }
+        .fadein .dialog{
+            transform: translate(0, 0);
+        }
+
+        body.hide {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="click">click me</button>
+    <div class="modal" id="modal">
+        <div class="dialog">
+            <div class="header clearfix">
+                <span class="title">this is a dialog title</span>
+                <span class="close" id="close">&times;</span>
+            </div>
+            <div class="content">this is a dialog content ......</div>
+        </div>
+    </div>
+    <script>
+        function $(node) {
+            return document.getElementById(node)
+        }
+        // 蒙层渐渐出现，且dialog向下移动
+        $('click').addEventListener('click', function () {
+            // $('modal').style.display = "block"
+            // var timer =setTimeout(function(){
+            //     $('modal').className = "modal fadein"
+            //     document.body.style.overflow = 'hidden'
+            //     clearTimeout(timer)
+            // }, 0)
+            d.show()
+        })
+        
+        $('close').addEventListener('click', function () {
+            // $('modal').className = "modal"
+            // var timer =setTimeout(function(){
+            //     $('modal').style.display = "none"
+            //     document.body.style.overflow = 'auto'
+            //     clearTimeout(timer)
+            // }, 500)
+            d.hide()
+        })
+        // dialog向上移动，且蒙层渐渐消失
+        $('modal').addEventListener('click', function () {
+            // $('modal').className = "modal"
+            // var timer =setTimeout(function(){
+            //     $('modal').style.display = "none"
+            //     document.body.style.overflow = 'auto'
+            //     clearTimeout(timer)
+            // }, 500)
+            d.hide()
+        })
+
+
+        // 封装
+
+        function Dialog(config){
+            this.node = config.node || $('modal')
+            this.width = config.width || 400
+            this.top = config.top || 30
+            // dialog
+            this.node.children[0].style.width = this.width + 'px'
+            this.node.children[0].style.marginTop = this.top + 'px'
+        }
+        Dialog.prototype.show = function(){
+            var _that = this
+            _that.node.style.display = "block"
+            var timer =setTimeout(function(){
+                _that.node.className = "modal fadein"
+                document.body.style.overflow = 'hidden'
+                clearTimeout(timer)
+            }, 0)
+        }
+        Dialog.prototype.hide = function(){
+            var _that = this
+            _that.node.className = "modal"
+            var timer =setTimeout(function(){
+                _that.node.style.display = "none"
+                document.body.style.overflow = 'auto'
+                clearTimeout(timer)
+            }, 500)
+        }
+        // 实例化
+        var d = new Dialog({
+            "node": $('modal'),
+            "width": 500,
+            "top": 30
+        })
+
+    </script>
+</body>
+
+</html>
