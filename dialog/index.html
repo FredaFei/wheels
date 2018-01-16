@@ -5,122 +5,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>dialog</title>
+    <title>this is a dialog</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        .clearfix::after {
-            content: '';
-            display: inline-block;
-            clear: both;
-        }
-
         .dialog-wrap {
-            display: none;
-            opacity: 0;
-            transition: all .2s ease;
-        }
-
-        .dialog-wrap .cover {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, .18);
-            z-index: 10;
+            background: rgba(0, 0, 0, .2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .dialog-wrap .main {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            border-radius: 6px;
+        .main {
+            width: 300px;
+            height: 200px;
+            padding: 16px;
             background: #fff;
-            z-index: 99;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
         }
 
-        .dialog-wrap .header {
-            line-height: 30px;
-            font-size: 16px;
-            padding: 2px 4px;
-            color: #222;
-            border-bottom: 1px solid #ccc;
+        .title {
+            border-bottom: 1px solid;
         }
 
-        .dialog-wrap .header .title {
-            float: left;
+        .foot {
+            text-align: right;
         }
 
-        .dialog-wrap .header .close {
-            float: right;
-            font-size: 22px;
-            cursor: pointer;
-        }
-
-        .dialog-wrap .content {
-            margin: 0 12px;
-            padding: 20px 0;
-        }
-
-        .dialog-wrap .footer {
-            line-height: 30px;
-        }
-
-        .dialog-wrap.fadein {
-            display: block;
-        }
-
-        .dialog-wrap.fadeout {
-            display: none;
-        }
-
-        body.hide {
-            overflow: hidden;
+        .userDialog {
+            z-index: 1;
         }
     </style>
 </head>
 
 <body>
-    <button id="click">click me</button>
-    <div class="dialog-wrap" id="dialog">
-        <div class="cover" id="cover"></div>
-        <div class="main">
-            <div class="header clearfix">
-                <span class="title">this is a dialog title</span>
-                <span class="close" id="close">&times;</span>
-            </div>
-            <div class="content">this is a dialog content ......</div>
-        </div>
-    </div>
+    <button id="btn">click me</button>
+
+    <script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
     <script>
-        function $(node) {
-            return document.getElementById(node)
+        class Dialog {
+            constructor(options) {
+                this.options = options
+                this.init()
+            }
+            get template() {
+                let {
+                    title,
+                    content,
+                    buttons
+                } = this.options
+                return '<div class="dialog-wrap">' +
+                    '<div class="main">' +
+                    '<div class="title">' + title + '</div>' +
+                    '<div class="content">' + content + '</div>' +
+                    '<div class="foot"></div>' +
+                    '</div>' +
+                    '</div>'
+            }
+            generatorButtons() {
+                let {
+                    buttons
+                } = this.options
+                let button = buttons.map(item => {
+                    let $b = $('<button></button>')
+                    $b.text(item.text)
+                    $b.on('click', item.action)
+                    return $b
+                })
+                return button
+            }
+            init() {
+                let $dialog = $(this.template)
+                $dialog.find('.foot').append(this.generatorButtons())
+                $dialog.addClass(this.options.className)
+                this.$dialog = $dialog
+                $dialog.on('click', this.options.maskClose)
+            }
+            open() {
+                this.$dialog.appendTo('body')
+            }
+            close() {
+                this.$dialog.detach()
+            }
         }
 
-        $('click').addEventListener('click', function () {
-            $('dialog').style.display = "block"
-            $('dialog').style.opacity = 1
-            document.body.style.overflow = 'hidden'
-        })
-        $('close').addEventListener('click', function () {
-            $('dialog').style.display = "none"
-            $('dialog').style.opacity = 0
-            document.body.style.overflow = 'auto'
-        })
-        $('cover').addEventListener('click', function () {
-            $('dialog').style.display = "none"
-            $('dialog').style.opacity = 0
-            document.body.style.overflow = 'auto'
-        })
 
-
+        $('#btn').on('click', function () {
+            var dialog = new Dialog({
+                className: 'userDialog',
+                title: '标题',
+                content: '<h1>this is a h1</h1>',
+                buttons: [{
+                    text: 'confirm',
+                    action: function () {
+                        dialog.close()
+                    }
+                }, {
+                    text: 'cancel',
+                    action: function () {
+                        dialog.close()
+                    }
+                }],
+                maskClose: function () {
+                    dialog.close()
+                }
+            })
+            dialog.open()
+        })
     </script>
 </body>
 

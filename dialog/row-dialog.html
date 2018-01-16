@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>dialog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .clearfix::after {
+            content: '';
+            display: inline-block;
+            clear: both;
+        }
+
+        .dialog-wrap {
+            display: none;
+            opacity: 0;
+            transition: all .2s ease;
+        }
+
+        .dialog-wrap .cover {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, .18);
+            z-index: 10;
+        }
+
+        .dialog-wrap .main {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            border-radius: 6px;
+            background: #fff;
+            z-index: 99;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+        }
+
+        .dialog-wrap .header {
+            line-height: 30px;
+            font-size: 16px;
+            padding: 2px 4px;
+            color: #222;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .dialog-wrap .header .title {
+            float: left;
+        }
+
+        .dialog-wrap .header .close {
+            float: right;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .dialog-wrap .content {
+            margin: 0 12px;
+            padding: 20px 0;
+        }
+
+        .dialog-wrap .footer {
+            line-height: 30px;
+        }
+
+        .dialog-wrap.fadein {
+            display: block;
+        }
+
+        .dialog-wrap.fadeout {
+            display: none;
+        }
+
+        body.hide {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="click">click me</button>
+    <div class="dialog-wrap" id="dialog">
+        <div class="cover" id="cover"></div>
+        <div class="main">
+            <div class="header clearfix">
+                <span class="title">this is a dialog title</span>
+                <span class="close" id="close">&times;</span>
+            </div>
+            <div class="content">this is a dialog content ......</div>
+        </div>
+    </div>
+    <script>
+        function $(node) {
+            return document.getElementById(node)
+        }
+
+        $('click').addEventListener('click', function () {
+            $('dialog').style.display = "block"
+            $('dialog').style.opacity = 1
+            document.body.style.overflow = 'hidden'
+        })
+        $('close').addEventListener('click', function () {
+            $('dialog').style.display = "none"
+            $('dialog').style.opacity = 0
+            document.body.style.overflow = 'auto'
+        })
+        $('cover').addEventListener('click', function () {
+            $('dialog').style.display = "none"
+            $('dialog').style.opacity = 0
+            document.body.style.overflow = 'auto'
+        })
+
+
+    </script>
+</body>
+
+</html>
