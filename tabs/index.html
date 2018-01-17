@@ -6,52 +6,76 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>this is a tabs</title>
     <style>
-        ul,
-        li {
+        ul,li {
             margin: 0;
             padding: 0;
             list-style: none;
         }
-
-        .tabs {
-            width: 200px;
-            margin: auto;
+        .tab-ct:after{
+            display: block;
+            content: '';
+            clear: both;
         }
-
+        .tabs {
+            width: 320px;
+            margin: 100px auto;
+            position: relative;
+        }
         .tabs>.navs {
             display: flex;
             justify-content: start;
-            border-bottom: 1px solid #333;
         }
-
         .nav {
+            position: relative;
+            z-index: 99;
             flex: 1;
+            margin: 0 2px -1px;
             padding: 6px 4px;
+            color: #333;
             text-align: center;
+            border-radius: 2px;
             border: 1px solid transparent;
-            border-bottom: 0;
             transition: all .1s ease;
             cursor: pointer;
         }
-
         .nav:hover {
-            border-color: blue;
+            color: #0e90d2;
+            background: #ddd;
         }
-
-        .nav:active {
-            border-color: red;
-        }
-
         .nav.active {
-            border-color: red;
+            border: 1px solid #ddd;
+            border-bottom-color: transparent;
+            background: #fff;
+            color: #333;
         }
-
+        .tab-ct{
+            margin: 0 2px;
+            min-height: 160px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border: 1px solid #ddd;
+        }
         .tab-ct>li {
-            display: none;
+            position: absolute;
+            top: 0;
+            z-index: 99;
+            float: left;
+            width: 100%;
+            padding: 10px;
+            visibility: hidden;
+            transition: transform .2s;
+            transform: translateX(-100%);
         }
-
         .tab-ct>li.active {
-            display: block;
+            position: relative;
+            z-index: 100;
+            visibility: visible;
+            transform: translateX(0);
+        }
+        /*CSS3 E ~ F 匹配任何在E元素之后的同级F元素*/
+        .tab-ct>li.active~li{
+            transform: translateX(100%);
         }
     </style>
 </head>
@@ -59,81 +83,46 @@
 <body>
 
 
-    <div class="tabs">
-        <ul class="navs">
-            <li class="nav">1</li>
-            <li class="nav">2</li>
-            <li class="nav">3</li>
-        </ul>
-        <ul class="tab-ct">
-            <li class="content">content 1</li>
-            <li class="content">content 2</li>
-            <li class="content">content 3</li>
-        </ul>
-    </div>
+<div class="tabs">
+    <ul class="navs">
+        <li class="nav">nav 1</li>
+        <li class="nav">nav 2</li>
+        <li class="nav">nav 3</li>
+    </ul>
+    <ul class="tab-ct">
+        <li class="content">content 1</li>
+        <li class="content">content 2</li>
+        <li class="content">content 3</li>
+    </ul>
+</div>
 
-    <script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
-    <script>
-        // 初级写法
-        // $('.tabs').each(function(index,el){ $(el).children('.nav').children('li').eq(0).addClass('active')
-        //   $(el).children('.tab-ct').children('li').eq(0).addClass('active')
-        // })
-
-        // $('.tabs').on('click','.nav',function(){
-        //   let $li = $(this)
-        //   let index = $li.index()
-        //   let $content = $li.closest('.tabs').find('.tab-ct>li').eq(index)
-        //  $li.addClass('active').siblings().removeClass('active')
-        //   $content.addClass('active').siblings().removeClass('active')
-        // })
-        //中级写法
-        // function Tabs(selector){
-        //   this.selector = selector
-        //   this.init()
-        //   this.bindEvents()
-        // }
-        // Tabs.prototype.init = function(){
-        //   this.selector.each(function(index,el){ 
-        //     $(el).children('.nav').children('li').eq(0).addClass('active')
-        //     $(el).children('.tab-ct').children('li').eq(0).addClass('active')
-        //   })
-        // }
-        // Tabs.prototype.bindEvents = function(){
-        //   this.selector.on('click','.nav',function(){
-        //   let $li = $(this)
-        //   let index = $li.index()
-        //   let $content = $li.closest('.tabs').find('.tab-ct>li').eq(index)
-        //   $li.addClass('active').siblings().removeClass('active')
-        //     $content.addClass('active').siblings().removeClass('active')
-        //   })
-        // }
-
-        //高级写法
-        class Tabs {
-            constructor(selector) {
-                this.selector = selector
-                this.init()
-                this.bindEvents()
-            }
-            init() {
-                this.selector.each(function (index, el) {
-                    $(el).children('.nav').children('li').eq(0).addClass('active')
-                    $(el).children('.tab-ct').children('li').eq(0).addClass('active')
-                })
-            }
-            bindEvents() {
-                this.selector.on('click', '.nav', function () {
-                    let $li = $(this)
-                    let index = $li.index()
-                    let $content = $li.closest('.tabs').find('.tab-ct>li').eq(index)
-                    $li.addClass('active').siblings().removeClass('active')
-                    $content.addClass('active').siblings().removeClass('active')
-                })
-            }
+<script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
+<script>
+    //高级写法
+    class Tabs {
+        constructor(selector) {
+            this.selector = selector
+            this.init()
+            this.bindEvents()
         }
-        new Tabs($('.tabs'))
-        
-    </script>
+        init() {
+            this.selector.each(function (index, el) {
+                $(el).children('.navs').children('li').eq(0).addClass('active')
+                $(el).children('.tab-ct').children('li').eq(0).addClass('active')
+            })
+        }
+        bindEvents() {
+            this.selector.on('click', '.nav', function () {
+                let $li = $(this)
+                let index = $li.index()
+                let $content = $li.closest('.tabs').find('.tab-ct>li').eq(index)
+                $li.addClass('active').siblings().removeClass('active')
+                $content.addClass('active').siblings().removeClass('active')
+            })
+        }
+    }
+    new Tabs($('.tabs'))
+</script>
 </body>
 
 </html>

@@ -68,6 +68,7 @@
             background: #fff;
         }
     </style>
+    <script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
 </head>
 
 <body>
@@ -80,120 +81,104 @@
         </ol>
     </div>
 
-    <script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
+    
+    <script src="./slide.js"></script>
     <script>
-        class Slide {
-            constructor(options) {
-                this.options = options
-                this.$element = $(this.options.element)
-                this.$element.addClass('ffSlide')
-                this.timer = 0
-                this.initHtml()
-                this.bindEvents()
-                this.go(0)
-                if (this.options.autoPlay) {
-                    this.play()
-                }
-                if (this.options.progress) {
-                    this.initProgress()
-                }
-            }
-            initHtml() {
-                let $elementChild = this.$element.children('ol').children('li')
-                let $first = $elementChild.eq(0).clone()
-                let $last = $elementChild.eq($elementChild.length - 1).clone()
-                this.$element.children('ol').append($first)
-                this.$element.children('ol').prepend($last)
-                this.currentIndex = this.$element.children('ol').children('li').length - 1
-                this.width = $elementChild.width()
-                this.$element.width(this.width)
-                this.$prev = $('<button class="prev arrow">prev</button>')
-                this.$next = $('<button class="next arrow">next</button>')
-                this.$element.append(this.$prev)
-                this.$element.append(this.$next)
-            }
-            initProgress() {
-                let $progress = $('<div class=suffix></div>')
-                let $ol = this.$element.children('ol')
-                let length = $ol.children('li').length
-                let spanHtml = ''
-                for (let i = 0; i < length - 2; i++) {
-                    spanHtml += ('<span></span>')
-                }
-                $progress.append($(spanHtml))
-                this.$element.append($progress)
-                $progress.children('span').eq(0).addClass('active')
-            }
-            bindEvents() {
-                this.$prev.on('click', () => {
-                    this.prev();
-                })
-                this.$next.on('click', () => {
-                    this.next();
-                })
-                if (this.options.autoPlay) {
-                    this.$element.on('mouseenter', () => {
-                        this.stopPlay()
-                    }).on('mouseleave', () => {
-                        this.play()
-                    })
-                }
-                this.$element.on('click', '.suffix>span', (e) => {
-                    let index = $(e.target).index()
-                    this.currentIndex = index
-                    this.go(this.currentIndex)
-                    $(e.target).addClass('active').siblings().removeClass('active')
-                })
-            }
-            go(index) {
-                let $ol = this.$element.children('ol')
-                let length = $ol.children('li').length
-                console.log(length)
-                let $suffix = this.$element.children('.suffix')
-                if (index > length - 1) {
-                    index = 0
-                } else if (index < 0) {
-                    index = length - 1
-                }
-                if (index == 0 && this.currentIndex == length - 1) {
-                    $ol.css({
-                        transform: `translateX(${-(index+1)*this.width}px)`
-                    })
-                    this.currentIndex = index + 1
-                } else if (index == length - 1 && this.currentIndex == 0) {
-                    $ol.css({
-                        transform: `translateX(${-this.width}px)`
-                    })
-                    this.currentIndex = 1
-                } else {
-                    $ol.css({
-                        transform: `translateX(${-index*this.width}px)`
-                    })
-                }
-                $suffix.children('span').eq(index).addClass('active').siblings().removeClass('active')
-                //     this.currentIndex = index
-            }
-            prev() {
-                this.go(this.currentIndex - 1)
-            }
-            next() {
-                this.go(this.currentIndex + 1)
-            }
-            play() {
-                this.timer = setInterval(() => {
-                    this.go(this.currentIndex + 1)
-                }, 2000)
-            }
-            stopPlay() {
-                window.clearInterval(this.timer)
-            }
-        }
-        var slide = new Slide({
-            element: '.slide',
-            controls: true,
-            progress: true,
-            autoPlay: false
-        })
+        // class Slide {
+        //     constructor(options) {
+        //         this.options = options
+        //         this.$element = $(this.options.element)
+        //         this.$element.addClass('ffSlide')
+        //         this.timer = 0
+        //         this.initHtml()
+        //         this.bindEvents()
+        //         this.go(0)
+        //         if (this.options.autoPlay) {
+        //             this.play()
+        //         }
+        //         if (this.options.progress) {
+        //             this.initProgress()
+        //         }
+        //     }
+        //     initHtml() {
+        //         let $elementChild = this.$element.children('ol').children('li')
+        //         this.width = $elementChild.width()
+        //         this.$element.width(this.width)
+        //         this.$prev = $('<button class="prev arrow">prev</button>')
+        //         this.$next = $('<button class="next arrow">next</button>')
+        //         this.$element.append(this.$prev)
+        //         this.$element.append(this.$next)
+        //     }
+        //     initProgress() {
+        //         let $progress = $('<div class=suffix></div>')
+        //         let $ol = this.$element.children('ol')
+        //         let length = $ol.children('li').length
+        //         let spanHtml = ''
+        //         for (let i = 0; i < length; i++) {
+        //             spanHtml += ('<span></span>')
+        //         }
+        //         $progress.append($(spanHtml))
+        //         this.$element.append($progress)
+        //         $progress.children('span').eq(0).addClass('active')
+        //     }
+        //     bindEvents() {
+        //         this.$prev.on('click', () => {
+        //             this.prev();
+        //         })
+        //         this.$next.on('click', () => {
+        //             this.next();
+        //         })
+        //         if (this.options.autoPlay) {
+        //             this.$element.on('mouseenter', () => {
+        //                 this.stopPlay()
+        //             }).on('mouseleave', () => {
+        //                 this.play()
+        //             })
+        //         }
+        //         this.$element.on('click', '.suffix>span', (e) => {
+        //             let index = $(e.target).index()
+        //             this.currentIndex = index
+        //             this.go(this.currentIndex)
+        //             $(e.target).addClass('active').siblings().removeClass('active')
+        //         })
+        //     }
+        //     go(index) {
+        //         let $ol = this.$element.children('ol')
+        //         let length = $ol.children('li').length
+        //         let $suffix = this.$element.children('.suffix')
+        //         if (index > length - 1) {
+        //             index = 0
+        //         } else if (index < 0) {
+        //             index = length - 1
+        //         }
+        //         $ol.css({
+        //             transform: `translateX(${-index*this.width}px)`
+        //         })
+        //         this.currentIndex = index
+        //         $suffix.children('span').eq(index).addClass('active').siblings().removeClass('active')
+
+        //     }
+        //     prev() {
+        //         this.go(this.currentIndex - 1)
+        //     }
+        //     next() {
+        //         this.go(this.currentIndex + 1)
+        //     }
+        //     play() {
+        //         this.timer = setInterval(() => {
+        //             this.go(this.currentIndex + 1)
+        //         }, 2000)
+        //     }
+        //     stopPlay() {
+        //         window.clearInterval(this.timer)
+        //     }
+        // }
+        // var slide = new Slide({
+        //     element: '.slide',
+        //     controls: true,
+        //     progress: true,
+        //     autoPlay: false
+        // })
     </script>
 </body>
 
