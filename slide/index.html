@@ -72,7 +72,7 @@
 </head>
 
 <body>
-    <div class="container slide">
+    <div class="container slides">
         <ol class="">
             <li><img src="http://via.placeholder.com/400x250/09f/fff&text=1" alt=""></li>
             <li><img src="http://via.placeholder.com/400x250/09f/fff&text=2" alt=""></li>
@@ -81,104 +81,107 @@
         </ol>
     </div>
 
-    
-    <script src="./slide.js"></script>
     <script>
-        // class Slide {
-        //     constructor(options) {
-        //         this.options = options
-        //         this.$element = $(this.options.element)
-        //         this.$element.addClass('ffSlide')
-        //         this.timer = 0
-        //         this.initHtml()
-        //         this.bindEvents()
-        //         this.go(0)
-        //         if (this.options.autoPlay) {
-        //             this.play()
-        //         }
-        //         if (this.options.progress) {
-        //             this.initProgress()
-        //         }
-        //     }
-        //     initHtml() {
-        //         let $elementChild = this.$element.children('ol').children('li')
-        //         this.width = $elementChild.width()
-        //         this.$element.width(this.width)
-        //         this.$prev = $('<button class="prev arrow">prev</button>')
-        //         this.$next = $('<button class="next arrow">next</button>')
-        //         this.$element.append(this.$prev)
-        //         this.$element.append(this.$next)
-        //     }
-        //     initProgress() {
-        //         let $progress = $('<div class=suffix></div>')
-        //         let $ol = this.$element.children('ol')
-        //         let length = $ol.children('li').length
-        //         let spanHtml = ''
-        //         for (let i = 0; i < length; i++) {
-        //             spanHtml += ('<span></span>')
-        //         }
-        //         $progress.append($(spanHtml))
-        //         this.$element.append($progress)
-        //         $progress.children('span').eq(0).addClass('active')
-        //     }
-        //     bindEvents() {
-        //         this.$prev.on('click', () => {
-        //             this.prev();
-        //         })
-        //         this.$next.on('click', () => {
-        //             this.next();
-        //         })
-        //         if (this.options.autoPlay) {
-        //             this.$element.on('mouseenter', () => {
-        //                 this.stopPlay()
-        //             }).on('mouseleave', () => {
-        //                 this.play()
-        //             })
-        //         }
-        //         this.$element.on('click', '.suffix>span', (e) => {
-        //             let index = $(e.target).index()
-        //             this.currentIndex = index
-        //             this.go(this.currentIndex)
-        //             $(e.target).addClass('active').siblings().removeClass('active')
-        //         })
-        //     }
-        //     go(index) {
-        //         let $ol = this.$element.children('ol')
-        //         let length = $ol.children('li').length
-        //         let $suffix = this.$element.children('.suffix')
-        //         if (index > length - 1) {
-        //             index = 0
-        //         } else if (index < 0) {
-        //             index = length - 1
-        //         }
-        //         $ol.css({
-        //             transform: `translateX(${-index*this.width}px)`
-        //         })
-        //         this.currentIndex = index
-        //         $suffix.children('span').eq(index).addClass('active').siblings().removeClass('active')
-
-        //     }
-        //     prev() {
-        //         this.go(this.currentIndex - 1)
-        //     }
-        //     next() {
-        //         this.go(this.currentIndex + 1)
-        //     }
-        //     play() {
-        //         this.timer = setInterval(() => {
-        //             this.go(this.currentIndex + 1)
-        //         }, 2000)
-        //     }
-        //     stopPlay() {
-        //         window.clearInterval(this.timer)
-        //     }
-        // }
-        // var slide = new Slide({
-        //     element: '.slide',
-        //     controls: true,
-        //     progress: true,
-        //     autoPlay: false
-        // })
+        class Slide {
+            constructor(options) {
+                this.options = options
+                this.$element = $(this.options.element)
+                this.$element.addClass('ffSlide')
+                this.timer = 0
+                this.initHtml()
+                this.bindEvents()
+                this.go(0)
+                if (this.options.autoPlay) {
+                    this.play()
+                }
+                if (this.options.progress) {
+                    this.initProgress()
+                }
+            }
+            initHtml() {
+                let $elementChild = this.$element.children('ol').children('li')
+                this.width = $elementChild.width()
+                this.$element.width(this.width)
+                this.$prev = $('<button class="prev arrow">prev</button>')
+                this.$next = $('<button class="next arrow">next</button>')
+                this.$element.append(this.$prev)
+                this.$element.append(this.$next)
+            }
+            initProgress() {
+                let $progress = $('<div class=suffix></div>')
+                let $ol = this.$element.children('ol')
+                let length = $ol.children('li').length
+                let spanHtml = ''
+                for (let i = 0; i < length; i++) {
+                    spanHtml += ('<span></span>')
+                }
+                $progress.append($(spanHtml))
+                this.$element.append($progress)
+                $progress.children('span').eq(0).addClass('active')
+            }
+            bindEvents() {
+                this.$prev.on('click', () => {
+                    this.prev();
+                })
+                this.$next.on('click', () => {
+                    this.next();
+                })
+                if (this.options.autoPlay) {
+                    this.$element.on('mouseenter', () => {
+                        this.stopPlay()
+                    }).on('mouseleave', () => {
+                        this.play()
+                    })
+                }
+                this.$element.on('click', '.suffix>span', (e) => {
+                    let index = $(e.target).index()
+                    this.currentIndex = index
+                    this.go(this.currentIndex)
+                    $(e.target).addClass('active').siblings().removeClass('active')
+                })
+            }
+            go(index) {
+                let $ol = this.$element.children('ol')
+                let $suffix = this.$element.children('.suffix')
+                index = this.fixIndex(index)
+                $ol.css({
+                    transform: `translateX(${-index*this.width}px)`
+                })
+                this.currentIndex = index
+                $suffix.children('span').eq(index).addClass('active').siblings().removeClass('active')
+            }
+            fixIndex(index){
+                let length = this.$element.children('ol').children('li').length
+                if (index > length - 1) {
+                    index = 0
+                } else if (index < 0) {
+                    index = length - 1
+                }
+                return index
+            }
+            prev() {
+                this.go(this.currentIndex - 1)
+            }
+            next() {
+                this.go(this.currentIndex + 1)
+            }
+            play() {
+                this.timer = setInterval(() => {
+                    this.go(this.currentIndex + 1)
+                }, 2000)
+            }
+            stopPlay() {
+                window.clearInterval(this.timer)
+            }
+        }
+        $(window).on('load', function(){
+            var slide = new Slide({
+                element: '.slides',
+                controls: true,
+                progress: true,
+                autoPlay: true
+            })
+        })
     </script>
 </body>
 
