@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+    <meta charset="utf-8">
+    <title>this is a sticky</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .topbar {
+            text-align: center;
+            line-height: 60px;
+            background: #90fddd;
+        }
+
+        .main {
+            height: 1800px;
+            background: #fdfadd;
+        }
+
+        .sticky {
+            position: fixed;
+            top: 0;
+        }
+
+        .topbar.sticky {
+            width: 100%
+        }
+
+        .btnlook {
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">topbar head</div>
+
+    <div class="main">
+        this a main
+        <p>this is a pragrah1</p>
+        <p>this is a pragrah2</p>
+        <p>this is a pragrah3</p>
+        <p>this is a pragrah4</p>
+        <p>this is a pragrah5</p>
+        <p>this is a pragrah6</p>
+        <p>this is a pragrah7</p>
+        <p>this is a pragrah8</p>
+        <p>this is a pragrah9</p>
+        <p>this is a pragrah10</p>
+        <p>this is a pragrah11</p>
+        <p>this is a pragrah12</p>
+        <button class="btnlook">look at me</button> this is a dlfjdlsf
+    </div>
+    <script>
+        class Sticky {
+            constructor(select, top) {
+                this.$elements = $(select)
+                this.offset = top || 0
+                this.topbarPlaceHolder()
+                this.cacheOffsets()
+                this.listenToScroll()
+            }
+            topbarPlaceHolder() {
+                this.$elements.each((index, element) => {
+                    $(element).wrap('<div class="topbarPlaceHolder"></div>')
+                    var outerHeight = $(element).outerHeight()
+                    $(element).parent().height(outerHeight)
+                })
+            }
+            cacheOffsets() {
+                this.offsets = []
+                this.$elements.each((index, element) => {
+                    this.offsets[index] = $(element).offset()
+                })
+            }
+            listenToScroll() {
+                $(window).on('scroll', () => {
+                    var scrollY = window.scrollY
+                    this.$elements.each((index, element) => {
+                        var $element = $(element)
+                        if (scrollY + this.offset > this.offsets[index].top) {
+                            $element.addClass('sticky').css('top', this.offset)
+                        } else {
+                            $element.removeClass('sticky')
+                        }
+                    })
+                })
+            }
+        }
+
+        new Sticky('.topbar')
+        new Sticky('.btnlook', 60)
+
+        // let offsetTop = $('.btn').offset().top
+        // $(window).on('scroll', function(){
+        //   var scrollY = window.scrollY
+        //   if(scrollY > 0){
+        //     $('.topbar').addClass('sticky')
+        //   }else{
+        //     $('.topbar').removeClass('sticky')
+        //   }
+        //   if(scrollY + 60 > offsetTop){
+        //     $('.btn').addClass('sticky')
+        //   }else{
+        //     $('.btn').removeClass('sticky')
+        //   }
+        // })
+    </script>
+</body>
+
+</html>
