@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>this is a suggestion</title>
+    <style>
+        ol,
+        li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .suggestion-wrap {
+            position: relative;
+            display: inline-block;
+            border: 1px solid blue;
+        }
+
+        .suggestion-loading {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            display: none;
+        }
+
+        .suggestion-empty {
+            display: none;
+        }
+
+        .suggestion-context {
+            position: absolute;
+            top: 100%;
+            left: 0%;
+            width: 100%;
+            border: 1px solid red;
+        }
+
+        .suggestion-wrap.loading .suggestion-context {
+            display: none;
+        }
+
+        .suggestion-wrap.empty .suggestion-empty {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <input type="text" class="input">
+
+    <script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
+    <script>
+        class Suggestion {
+            constructor(options) {
+                this.options = options
+                this.$input = $(options.el)
+                this.$input.wrap('<div class="suggestion-wrap"></div>')
+                this.$wrap = this.$input.parent()
+                this.$ol = $('<ol class="suggestion-context"></ol>')
+                this.$input.after(this.$ol)
+                this.$loading = $('<div class="suggestion-loading"></div>')
+                this.$input.after(this.$loading.html(options.loadingTemplate))
+                this.$empty = $('<div class="suggestion-empty"></div>')
+                this.$input.after(this.$empty.append(options.emptyTemplate))
+                this.bindEvents()
+            }
+            bindEvents() {
+                var timer
+                if (timer) {
+                    window.clearTimeout(timer)
+                }
+                this.$input.on('input', (e) => {
+                    timer = setTimeout(() => {
+                        this.searchEvents(e.target.value)
+                    }, 300)
+                })
+            }
+            searchEvents(text) {
+                this.$wrap.addClass('loading')
+                this.$wrap.removeClass('empty')
+                this.options.search(text, arr => {
+                    this.$ol.empty()
+                    this.$wrap.removeClass('loading empty')
+                    if (!arr && arr.length == 0) {
+                        this.$wrap.addClass('empty')
+                        return
+                    }
+                    console.log(2)
+                    var li = ''
+                    arr.forEach((text) => {
+                        li += '<li>'+text+'</li>'
+                    })
+                    this.$ol.append(li)
+                    console.log(3)
+                })
+            }
+        }
+
+        $(window).on('load', function () {
+            new Suggestion({
+                el: '.input',
+                search: function (text, callback) {
+                    if (text === '0') {
+                        return callback([])
+                    }
+                    var resultArr = []
+                    var n = parseInt(Math.random() * 10, 10)
+                    for (i = 0; i < 5; i++) {
+                        resultArr.push(text + n)
+                    }
+                    setTimeout(() => {
+                        callback(resultArr)
+                    }, 300)
+                },
+                loadingTemplate: '<b>正在加载中...</b>',
+                emptyTemplate: '<b>没有找到...</b>'
+            })
+        })
+    </script>
+</body>
+
+</html>
