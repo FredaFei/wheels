@@ -11,13 +11,30 @@
             padding: 0;
             list-style: none;
         }
-
+        input,
+        input:focus{
+            outline: none;
+            border: 1px solid #ddd;
+        }
+        button:focus,
+        button:active{
+            outline: none;
+        }
         .suggestion-wrap {
             position: relative;
-            display: inline-block;
-            border: 1px solid blue;
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            width: 400px;
+            margin: 100px auto;
         }
-
+        .suggestion-input{
+            width: 100%;
+            padding: 8px 4px;
+            font-size: 14px;
+            background: #fff;
+            box-sizing: border-box;
+        }
         .suggestion-loading {
             position: absolute;
             top: 100%;
@@ -35,7 +52,26 @@
             top: 100%;
             left: 0%;
             width: 100%;
-            border: 1px solid red;
+            box-sizing: border-box;
+        }
+
+        .suggestion-context>li {
+            padding: 6px 4px;
+            border: 1px solid #ddd;
+            border-top: none;
+            transition: all .2s ease;
+        }
+
+        .suggestion-context>li:hover {
+            background-color: #eee;
+        }
+
+        .suggestion-context>li.active {
+            background-color: #eee;
+        }
+
+        .suggestion-wrap.loading .suggestion-loading {
+            display: block;
         }
 
         .suggestion-wrap.loading .suggestion-context {
@@ -45,13 +81,26 @@
         .suggestion-wrap.empty .suggestion-empty {
             display: block;
         }
+        .btn{
+            padding: 7px 20px;
+            font-size: 16px;
+            color: #fff;
+            background: #3385ff;
+            border: 1px solid #3385ff;
+            transition: all .2s ease;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .btn:hover{
+            background: #2d78f4;
+        }
     </style>
 </head>
 
 <body>
 
-    <input type="text" class="input">
-
+    <input type="text" class="suggestion-input">
+    <!--<button class="btn">search</button>-->
     <script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
     <script>
         class Suggestion {
@@ -66,6 +115,8 @@
                 this.$input.after(this.$loading.html(options.loadingTemplate))
                 this.$empty = $('<div class="suggestion-empty"></div>')
                 this.$input.after(this.$empty.append(options.emptyTemplate))
+                this.$input.after($('<button class="btn">search</button>'))
+                this.currentIndex = -1
                 this.bindEvents()
             }
             bindEvents() {
@@ -78,6 +129,42 @@
                         this.searchEvents(e.target.value)
                     }, 300)
                 })
+                this.$ol.on('click', 'li', (e) => {
+                    var $li = $(e.target)
+                    this.go($li.index())
+                    this.$input.val($li.text())
+                })
+                this.$ol.on('keydown', 'li', (e) => {
+                    if (e && e.keyCode == 38) { //上,左
+                        this.go(this.currentIndex - 1)
+                    } else if (e && e.keyCode == 40) {
+                        this.go(this.currentIndex + 1)
+                    }
+                })
+                this.$input.on('keydown', (e) => {
+                    if (e && e.keyCode == 38) { //上,左
+                        this.go(this.currentIndex - 1)
+                    } else if (e && e.keyCode == 40) {
+                        this.go(this.currentIndex + 1)
+                    }
+                })
+
+            }
+            go(index) {
+                index = this.fixIndex(index)
+                var $currentLi = $(this.$ol.children('li')).eq(index)
+                $currentLi.addClass('active').siblings().removeClass('active')
+                this.$input.val($currentLi.text())
+                this.currentIndex = index
+            }
+            fixIndex(index) {
+                var length = this.$ol.children().length
+                if (index > length - 1) {
+                    index = 0
+                } else if (index < 0) {
+                    index = length - 1
+                }
+                return index
             }
             searchEvents(text) {
                 this.$wrap.addClass('loading')
@@ -85,31 +172,27 @@
                 this.options.search(text, arr => {
                     this.$ol.empty()
                     this.$wrap.removeClass('loading empty')
-                    if (!arr && arr.length == 0) {
+                    if (!arr || arr.length == 0) {
                         this.$wrap.addClass('empty')
                         return
                     }
-                    console.log(2)
-                    var li = ''
                     arr.forEach((text) => {
-                        li += '<li>'+text+'</li>'
+                        this.$ol.append($('<li></li>').text(text))
                     })
-                    this.$ol.append(li)
-                    console.log(3)
+
                 })
             }
         }
-
         $(window).on('load', function () {
             new Suggestion({
-                el: '.input',
+                el: '.suggestion-input',
                 search: function (text, callback) {
                     if (text === '0') {
                         return callback([])
                     }
                     var resultArr = []
-                    var n = parseInt(Math.random() * 10, 10)
                     for (i = 0; i < 5; i++) {
+                        var n = parseInt((Math.random() * 100), 10)
                         resultArr.push(text + n)
                     }
                     setTimeout(() => {
@@ -120,6 +203,9 @@
                 emptyTemplate: '<b>没有找到...</b>'
             })
         })
+        /*
+        * 待完善当鼠标点击搜索列表时，键盘上下键事件
+        */
     </script>
 </body>
 
