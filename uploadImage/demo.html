@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图片上传预览和验证尺寸</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            color: #757575;
+            font-size: 14px;
+        }
+
+        .imgpick {
+            width: 200px;
+            height: 200px;
+            margin: 100px auto;
+            border-radius: 10px;
+            border: 1px dashed #ddd;
+            transition: all .2s ease-in;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .imgpick:before {
+            content: "点击上传";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .imgpick img {
+            width: 100%;
+            height: 100%;
+            vertical-align: middle;
+        }
+
+        .imgpick input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .imgpick .mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, .1);
+        }
+
+        .imgpick:hover .mask {
+            display: flex;
+            border-color: #409eff;
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="imgpick">
+    <img src="" alt="" id="predeview">
+    <input type="file" id="fileupload" multiple>
+    <div class="mask">修改</div>
+</div>
+
+<script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.js"></script>
+<script>
+    var $fileupload = document.getElementById('fileupload')
+    var $predeview = document.getElementById('predeview')
+
+
+    $('#fileupload').on('change', function (e) {
+        var files = e.target.files
+        console.log(files[0])
+        if (files && files[0]) {
+            var img = new Image();
+            console.log($(img))
+            debugger;
+            $(img).load (function () {
+                let { width, height } = img
+                console.log('opop')
+                console.log(width, height);
+                console.log(legalImageTypeImageSize(img))
+                if(!legalImageTypeImageSize(img)) return
+            })
+            img.error = function () {
+                console.log('load err')
+                return
+            }
+            img.src = window.URL.createObjectURL(files[0]);
+            document.body.appendChild(img)
+        } else {
+            console.log('please upload file')
+        }
+    })
+
+    function legalImageType(typeArr, typStr) {
+        return typeArr.some(item=> item=== typStr)
+    }
+    function legalImageTypeImageSize(options,baseObj){
+        let {width,height,size} = options
+        let {maxWidth, maxHeight, maxSize} = baseObj || {maxWidth: 500, maxHeight: 600, maxSize: 20000}
+        return width < maxWidth && height < maxHeight && size < maxSize ? true : false
+    }
+
+    // var typeArr = ['jpeg', 'gif', 'svg', 'png', 'jpg']
+
+
+    // $fileupload.onchange=function(e){
+    //     var fomatfile = new FormData()
+    //     fomatfile.append('xx',e.target.files[0])
+    //     $predeview.setAttribute('src', e.target.files[0].name)
+    //     console.log(e.target.files[0])
+    // }
+
+</script>
+
+</body>
+</html>
