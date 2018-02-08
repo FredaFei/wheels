@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MVC</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.17.1/axios.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app"></div>
+    <script>
+        axios.interceptors.response.use(function (response) {
+            console.log(response)
+            let {
+                config: {
+                    url,
+                    method,
+                    data
+                }
+            } = response
+            data = JSON.parse(data || '{}')
+            let row = {
+                id: 1,
+                name: 'JavaScript高级程序设计',
+                number: 0
+            }
+            if (url === '/books/1' && method === 'get') {
+                response.data = row
+            } else if (url === '/books/1' && method === 'put') {
+                response.data = Object.assign(row, data)
+            }
+            return response
+        })
+
+        function fetch(){
+            return axios.get(`/books/1`)
+        }
+        function save(newData){
+            return axios.put(`/books/1`,newData)
+        }
+
+        var temlpate = `
+        <div class="title">书名：《__name__》 数量：<span id="number">__number__</span></div>
+        <div class="actions">
+            <button id="increaseByOne">加1</button>
+            <button id="decreaseByOne">减1</button>
+            <button id="square">平方</button>
+            <button id="cube">立方</button>
+            <button id="reset">归零</button>
+        </div>
+        `
+        fetch().then(res=>{
+            let data = res.data
+            $('#app').html(
+                temlpate.replace('__name__',data.name).replace('__number__',data.number)
+            )
+            $('#increaseByOne').on('click', function(){
+                var oldResult =parseInt($('#number').text(),10)
+                var newResult = oldResult+1
+                save({number: newResult}).then(({data})=>{
+                    $('#number').text(data.number)
+                })
+            })
+            $('#decreaseByOne').on('click', function(){
+                var oldResult =parseInt($('#number').text(),10)
+                var newResult = oldResult-1
+                save({number: newResult}).then(({data})=>{
+                    $('#number').text(data.number)
+                })
+            })
+            $('#square').on('click', function(){
+                var oldResult =parseInt($('#number').text(),10)
+                var newResult = Math.pow(oldResult,2)
+                save({number: newResult}).then(({data})=>{
+                    $('#number').text(data.number)
+                })
+            })
+            $('#cube').on('click', function(){
+                var oldResult =parseInt($('#number').text(),10)
+                var newResult = Math.pow(oldResult,3)
+                save({number: newResult}).then(({data})=>{
+                    $('#number').text(data.number)
+                })
+            })
+            $('#reset').on('click', function(){
+                var newResult =0
+                save({number: newResult}).then(({data})=>{
+                    $('#number').text(data.number)
+                })
+            })
+        })
+
+    </script>
+</body>
+
+</html>
