@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MVC develop_1</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.17.1/axios.min.js"></script>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+    axios.interceptors.response.use(function (response) {
+        console.log(response)
+        let {
+            config: {
+                url,
+                method,
+                data
+            }
+        } = response
+        data = JSON.parse(data || '{}')
+        let row = {
+            id: 1,
+            name: 'JavaScript高级程序设计',
+            number: 0
+        }
+        if (url === '/books/1' && method === 'get') {
+            response.data = row
+        } else if (url === '/books/1' && method === 'put') {
+            response.data = Object.assign(row, data)
+        }
+        return response
+    })
+
+    var model = {
+        data: {
+            name: '',
+            number: 0,
+            id: 1
+        },
+        fetch(id) {
+            return axios.get(`/books/${id}`).then(res=> {
+                this.data = res.data
+            })
+        },
+        update(newData) {
+            let id = this.data.id
+            return axios.put(`/books/${id}`, newData).then(res=> {
+                this.data = res.data
+            })
+        },
+        create(data){
+            return axios.post(`${this.baseUrl}${this.resource}s`,data).then(res=>{
+                this.data = res.data
+            })
+        },
+        destory(id){
+            return axios.delete(`${this.baseUrl}${this.resource}s/${id}`).then(res=>{
+                this.data = {}
+            })
+        }
+    }
+    var view = {
+        el: '#app',
+        template: `
+<div class="title">书名：《__name__》 数量：<span id="number">__number__</span></div>
+<div class="actions">
+    <button id="increaseByOne">加1</button>
+    <button id="decreaseByOne">减1</button>
+    <button id="square">平方</button>
+    <button id="cube">立方</button>
+    <button id="reset">归零</button>
+</div>
+   `,
+        render(data) {
+            var temlpate = this.template.replace('__name__', data.name)
+                .replace('__number__', data.number)
+            $(this.el).html(temlpate)
+        }
+    }
+    var control = {
+        init({view, model}) {
+            this.view = view
+            this.model = model
+            this.view.render(this.model.data)
+            this.fetchModel(1)
+            this.bindEvents()
+        },
+        bindEvents() {
+            const events = [
+                {el: '#increaseByOne', type: 'click', fnName: 'add'},
+                {el: '#decreaseByOne', type: 'click', fnName: 'decrease'},
+                {el: '#square', type: 'click', fnName: 'square'},
+                {el: '#cube', type: 'click', fnName: 'cube'},
+                {el: '#reset', type: 'click', fnName: 'reset'},
+            ]
+            events.map(item=> {
+                $(this.view.el).on(item.type, item.el, this[item.fnName].bind(this))
+            })
+        },
+        updateModel(data) {
+            this.model.update(data).then(()=> {
+                this.view.render(this.model.data)
+        })
+        },
+        fetchModel(id) {
+            this.model.fetch(id).then(()=> {
+                this.view.render(this.model.data)
+        })
+        },
+        add() {
+            var newResult = this.model.data.number + 1
+            this.updateModel({number: newResult})
+        },
+        decrease() {
+            var newResult = this.model.data.number - 1
+            this.updateModel({number: newResult})
+        },
+        square() {
+            var newResult = Math.pow(this.model.data.number, 2)
+            this.updateModel({number: newResult})
+        },
+        cube() {
+            var newResult = Math.pow(this.model.data.number, 3)
+            this.updateModel({number: newResult})
+        },
+        reset() {
+            this.updateModel({number: 0})
+        }
+    }
+
+    control.init({view, model})
+</script>
+
+
+</body>
+
+</html>

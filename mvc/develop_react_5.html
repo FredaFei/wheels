@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MVC develop_5</title>
+    <script src="https://cdn.bootcss.com/axios/0.17.1/axios.min.js"></script>
+    <script src="https://fb.me/react-with-addons-15.1.0.js"></script>
+    <script src="https://fb.me/react-dom-15.1.0.js"></script>
+</head>
+
+<body>
+<div id="app"></div>
+
+<script>
+    axios.interceptors.response.use(function(response) {
+        let {
+            config: {
+            url, method, data
+            }
+        } = response
+        data = JSON.parse(data || '{}')
+        let row = {
+            id: 1,
+            name: 'JavaScript高级程序设计',
+            number: 2
+        }
+        if (url === '/books/1' && method === 'get') {
+            response.data = row
+        } else if (url === '/books/1' && method === 'put') {
+            response.data = Object.assign(row, data)
+        }
+        return response
+    })
+
+    class Model{
+        constructor(options){
+            this.resource = options.resource
+            this.baseUrl = options.baseUrl || '/'
+        }
+        fetch(id) {
+            return axios.get(`${this.baseUrl}${this.resource}s/${id}`)
+        }
+        update(newData) {
+            let id = this.data.id
+            return axios.put(`${this.baseUrl}${this.resource}s/${id}`, newData)
+        }
+        create(data){
+            return axios.post(`${this.baseUrl}${this.resource}s`,data)
+        }
+        destory(id){
+            return axios.delete(`${this.baseUrl}${this.resource}s/${id}`)
+        }
+    }
+
+
+    var model = new Model({
+        resource: 'book'
+    })
+
+    class BookCard extends React.Component{
+        constructor(props){
+            this.state = {
+                book: {
+                    name: '',
+                    number: 0,
+                    id: 1
+                },
+                n: 123
+            }
+        }
+        componentDidMount(){
+            model.fetch(1).then(({data})=>{
+                this.setState({book: data})
+            })
+        }
+        add() {
+            let newData = this.state.book.number + 1
+            model.update(this.state.book.id, newData).then(({data})=>{
+                this.setState({book: data})
+            })
+        }
+        decrease() {
+            let newData = this.state.book.number - 1
+            model.update(this.state.book.id, newData).then(({data})=>{
+                this.setState({book: data})
+            })
+        }
+        square() {
+            let newData = Math.pow(this.state.book.number, 2)
+            model.update(this.state.book.id, newData).then(({data})=>{
+                this.setState({book: data})
+            })
+        }
+        cube() {
+            let newData = Math.pow(this.state.book.number, 3)
+            model.update(this.state.book.id, newData).then(({data})=>{
+                this.setState({book: data})
+            })
+        }
+        reset() {
+            model.update(this.state.book.id).then(()=>{
+                this.setState({book: 0})
+            })
+        }
+        changeN(e){
+            this.setState({n: e.target.value})
+        }
+        render(){
+            return(<div>
+                <div>
+                    书名：《{this.state.book.name}》
+                    数量：{this.state.book.number}
+                </div>
+                <div>
+                    <input value={this.state.n} onChange={this.changeN}/>
+                </div>
+                <div className="actions">
+                    <button onClick={this.add.bind(this)}>加N</button>
+                    <button onClick={this.minus.bind(this)}>减N</button>
+                    <button onClick={this.square.bind(this)}>平方</button>
+                    <button onClick={this.cube.bind(this)}>立方</button>
+                    <button onClick={this.reset.bind(this)}>归零</button>
+                </div>
+            </div>)
+        }
+    }
+
+    const view = <BookCard />
+    ReactDOM.render(
+        view,
+        document.getElementById('app')
+    );
+
+</script>
+</body>
+</html>

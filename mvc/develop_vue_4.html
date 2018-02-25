@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MVC develop_4</title>
+    <script src="https://cdn.bootcss.com/axios/0.17.1/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
+</head>
+
+<body>
+<div id="app"></div>
+
+<script>
+    axios.interceptors.response.use(function(response) {
+        let {
+            config: {
+            url, method, data
+            }
+        } = response
+        data = JSON.parse(data || '{}')
+        let row = {
+            id: 1,
+            name: 'JavaScript高级程序设计',
+            number: 2
+        }
+        if (url === '/books/1' && method === 'get') {
+            response.data = row
+        } else if (url === '/books/1' && method === 'put') {
+            response.data = Object.assign(row, data)
+        }
+        return response
+    })
+
+    class Model {
+        constructor(options) {
+            this.resource = options.resource
+            this.baseUrl = options.baseUrl || '/'
+        }
+        fetch(id) {
+            return axios.get(this.baseUrl + this.resource + 's/' + id)
+        }
+        create(data) {
+            return axios.post(this.baseUrl + this.resource + 's', data)
+        }
+        destroy() {
+            let id = this.data.id
+            return axios.delete(this.baseUrl + this.resource + 's/' + id)
+        }
+        update(id,newData) {
+            return axios.put(this.baseUrl + this.resource + 's/' + id, newData)
+        }
+    }
+
+    var model = new Model({
+        resource: 'book'
+    })
+
+    var view = new Vue({
+        el: '#app',
+        data: {
+            book: {
+            name: '未命名',
+            number: 0,
+            id: 1
+            },
+            n: 123
+        },
+        template: `
+        <div>
+        <div>
+        书名：《{{book.name}}》，
+        数量：{{book.number}}
+        </div>
+        <div><input v-model="n"></div>
+        <div class="actions">
+        <button v-on:click="add">加N</button>
+        <button v-on:click="minus">减N</button>
+        <button v-on:click="square">平方</button>
+        <button v-on:click="cube">立方</button>
+        <button v-on:click="reset">归零</button>
+        </div>
+        </div>
+        `,
+        created(){
+            model.fetch(1).then(({data})=> {
+            view.book = data
+            })
+        },
+        methods: {
+            updateModel(newData) {
+            model.update(this.book.id, newData).then(({data})=>{
+                this.book = data
+            })
+            },
+            add() {
+            let newData = {
+                number: this.book.number + (this.n - 0)
+            }
+            this.updateModel(newData)
+            },
+            minus() {
+            let newData = {
+                number: this.book.number - (this.n - 0)
+            }
+            this.updateModel(newData)
+            },
+            square() {
+            let newData = {
+                number: Math.pow(this.book.number, 2)
+            }
+            this.updateModel(newData)
+            },
+            cube() {
+            let newData = {
+                number: Math.pow(this.book.number, 3)
+            }
+            this.updateModel(newData)
+            },
+            reset() {
+            this.updateModel({
+                number: 0
+            })
+            }
+        }
+    })
+
+</script>
+</body>
+</html>

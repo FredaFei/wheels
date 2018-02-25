@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MVC develop_2</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.17.1/axios.min.js"></script>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+    axios.interceptors.response.use(function (response) {
+        let {
+            config: {
+                url,
+                method,
+                data
+            }
+        } = response
+        data = JSON.parse(data || '{}')
+        let row = {
+            id: 1,
+            name: 'JavaScript高级程序设计',
+            number: 0
+        }
+        if (url === '/books/1' && method === 'get') {
+            response.data = row
+        } else if (url === '/books/1' && method === 'put') {
+            response.data = Object.assign(row, data)
+        }
+        return response
+    })
+
+    class Model{
+        constructor(options){
+            this.resource = options.resource
+            this.data = options.data || {}
+            this.baseUrl = options.baseUrl || '/'
+        }
+        fetch(id) {
+            return axios.get(`${this.baseUrl}${this.resource}s/${id}`).then(res=> {
+                this.data = res.data
+            })
+        }
+        update(newData) {
+            let id = this.data.id
+            return axios.put(`${this.baseUrl}${this.resource}s/${id}`, newData).then(res=> {
+                this.data = res.data
+            })
+        }
+        create(data){
+            return axios.post(`${this.baseUrl}${this.resource}s`,data).then(res=>{
+                this.data = res.data
+            })
+        }
+        destory(id){
+            return axios.delete(`${this.baseUrl}${this.resource}s/${id}`).then(res=>{
+                this.data = {}
+            })
+        }
+    }
+
+    class View{
+        constructor(options){
+            this.$el = $(options.el)
+            this.template = options.template
+        }
+        render(data) {
+            var html = this.template
+            for(let key in data){
+                var value = data[key]
+                html = html.replace(`__${key}__`, value)
+            }
+            this.$el.html(html)
+        }
+    }
+    class Controller{
+        constructor({view, model, events, init, ...rest}){
+            this.view = view
+            this.model = model
+            this.events = events
+            Object.assign(this,rest)
+            this.view.render(this.model.data)
+            this.bindEvents()
+            init.apply(this,arguments)
+        }
+        bindEvents(){
+            this.events.map(item=> {
+                this.view.$el.on(item.type, item.el, this[item.fnName].bind(this))
+            })
+        }
+    }
+
+    var model = new Model({
+        resource: 'book',
+        baseUrl: '/',
+        data: {
+            name: '',
+            number: 0,
+            id: 1
+        }
+    })
+    var view = new View({
+        el: '#app',
+        template: `
+          <div class="title">书名：《__name__》 数量：<span id="number">__number__</span></div>
+          <div class="actions">
+              <button id="increaseByOne">加1</button>
+              <button id="decreaseByOne">减1</button>
+              <button id="square">平方</button>
+              <button id="cube">立方</button>
+              <button id="reset">归零</button>
+          </div>
+        `
+    })
+    var control = new Controller({
+        view: view,
+        model: model,
+        events: [
+            {el: '#increaseByOne', type: 'click', fnName: 'add'},
+            {el: '#decreaseByOne', type: 'click', fnName: 'decrease'},
+            {el: '#square', type: 'click', fnName: 'square'},
+            {el: '#cube', type: 'click', fnName: 'cube'},
+            {el: '#reset', type: 'click', fnName: 'reset'},
+        ],
+        init() {
+            this.fetchModel(1)
+        },
+        updateModel(data) {
+            this.model.update(data).then(()=> {
+                this.view.render(this.model.data)
+        })
+        },
+        fetchModel(id) {
+            this.model.fetch(id).then(()=> {
+                this.view.render(this.model.data)
+        })
+        },
+        add() {
+            var newResult = this.model.data.number + 1
+            this.updateModel({number: newResult})
+        },
+        decrease() {
+            var newResult = this.model.data.number - 1
+            this.updateModel({number: newResult})
+        },
+        square() {
+            var newResult = Math.pow(this.model.data.number, 2)
+            this.updateModel({number: newResult})
+        },
+        cube() {
+            var newResult = Math.pow(this.model.data.number, 3)
+            this.updateModel({number: newResult})
+        },
+        reset() {
+            this.updateModel({number: 0})
+        }
+    })
+
+</script>
+</body>
+</html>
